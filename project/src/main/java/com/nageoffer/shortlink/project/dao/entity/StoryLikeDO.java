@@ -40,7 +40,7 @@ public class StoryLikeDO extends BaseDO {
     private Long id;
 
     /**
-     * story id
+     * storyId
      */
     private Long storyId;
 
