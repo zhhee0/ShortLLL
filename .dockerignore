@@ -1,0 +1,7 @@
+.git
+.idea
+**/target
+**/*.log
+console-vue/node_modules
+console-vue/dist
+console-vue/.vite

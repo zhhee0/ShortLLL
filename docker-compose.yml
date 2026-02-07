@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: shortlink-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "PHRmUcd6ZpM0506N1wldC9EKsix77VA8HwMHloLJPZtxSkMnRfEKSn8SYpvcaI5"
+      MYSQL_DATABASE: link
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    network_mode: "host"
+
+  redis:
+    image: redis:7-alpine
+    container_name: shortlink-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "123456"]
+    volumes:
+      - ./data/redis:/data
+    network_mode: "host"
+
+  nacos:
+    image: nacos/nacos-server:latest
+    container_name: shortlink-nacos
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: ip
+      NACOS_SERVER_IP: 114.67.253.48
+      JVM_XMS: 256m
+      JVM_XMX: 256m
+      JVM_XMN: 128m
+    volumes:
+      - ./data/nacos:/home/nacos/data
+      - ./logs/nacos:/home/nacos/logs
+    network_mode: "host"
+
+  aggregation:
+    image: shortlink-aggregation:latest
+    container_name: shortlink-aggregation
+    restart: unless-stopped
+    environment:
+      DATABASE_ENV: prod
+      JAVA_OPTS: -Xms256m -Xmx512m
+    network_mode: "host"
+    depends_on:
+      - mysql
+      - redis
+      - nacos
+
+  gateway:
+    image: shortlink-gateway:latest
+    container_name: shortlink-gateway
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: aggregation
+      JAVA_OPTS: -Xms256m -Xmx512m
+    network_mode: "host"
+    depends_on:
+      - aggregation
+      - nacos
+
+  console:
+    image: shortlink-console:latest
+    container_name: shortlink-console
+    restart: unless-stopped
+    network_mode: "host"
+    depends_on:
+      - gateway
