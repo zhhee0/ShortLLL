@@ -10,7 +10,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      password: ${REDIS_PASSWORD:your_redis_password}
+      password: ${GATEWAY_REDIS_PASSWORD:your_gateway_redis_password}
   cloud:
     nacos:
       discovery:

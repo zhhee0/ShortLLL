@@ -11,7 +11,7 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      password: ${REDIS_PASSWORD:your_redis_password}
+      password: ${PROJECT_REDIS_PASSWORD:your_project_redis_password}
   mvc:
     view:
       prefix: /templates/
@@ -20,7 +20,7 @@ spring:
     host: 127.0.0.1
     port: 5672
     username: admin
-    password: ${RABBITMQ_PASSWORD:your_rabbitmq_password}
+    password: ${PROJECT_RABBITMQ_PASSWORD:your_project_rabbitmq_password}
   cloud:
     nacos:
       discovery:
@@ -31,7 +31,7 @@ short-link:
     default: heng.beimxw.top
   stats:
     locale:
-      amap-key: ${AMAP_KEY:your_amap_key}
+      amap-key: ${PROJECT_AMAP_KEY:your_project_amap_key}
   goto-domain:
     white-list:
       enable: true

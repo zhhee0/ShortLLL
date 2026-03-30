@@ -90,6 +90,12 @@
 ./mvnw -pl aggregation -am spring-boot:run
 ```
 
+如果本地使用私有配置，先在 PowerShell 中加载本地环境变量：
+
+```powershell
+. .\local-dev.ps1
+```
+
 或按模块分别启动：
 
 ```bash
@@ -124,4 +130,3 @@ pnpm dev
 - 对超热点短链的 UV / UIP 判重做大 key 优化
 - 进一步拆分统计模型，降低迁组与统计之间的耦合
 - 增强消息链路监控、补偿与告警能力
-

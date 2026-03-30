@@ -4,7 +4,7 @@ dataSources:
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/link?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: ${MYSQL_PASSWORD:your_mysql_password}
+    password: ${ADMIN_MYSQL_PASSWORD:your_admin_mysql_password}
 
 rules:
   - !SHARDING
@@ -45,6 +45,6 @@ rules:
       common_encryptor:
         type: AES
         props:
-          aes-key-value: ${AES_KEY_VALUE:your_aes_key}
+          aes-key-value: ${ADMIN_AES_KEY_VALUE:your_admin_aes_key}
 props:
   sql-show: true
