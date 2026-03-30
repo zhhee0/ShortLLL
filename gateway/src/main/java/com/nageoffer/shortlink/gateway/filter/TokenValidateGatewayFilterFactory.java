@@ -33,14 +33,16 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SpringCloud Gateway Token 拦截器
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @Component
 public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFactory<Config> {
@@ -59,14 +61,21 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
             String requestPath = request.getPath().toString();
             String requestMethod = request.getMethod().name();
             if (!isPathInWhiteList(requestPath, requestMethod, config.getWhitePathList())) {
-                String username = request.getHeaders().getFirst("username");
+                String rawUsername = request.getHeaders().getFirst("username");
                 String token = request.getHeaders().getFirst("token");
+                String username = StringUtils.hasText(rawUsername)
+                        ? URLDecoder.decode(rawUsername, StandardCharsets.UTF_8)
+                        : rawUsername;
                 Object userInfo;
-                if (StringUtils.hasText(username) && StringUtils.hasText(token) && (userInfo = stringRedisTemplate.opsForHash().get("short-link:login:" + username, token)) != null) {
+                if (StringUtils.hasText(username) && StringUtils.hasText(token) && (userInfo = stringRedisTemplate
+                        .opsForHash().get("short-link:login:" + username, token)) != null) {
+                    stringRedisTemplate.expire("short-link:login:" + username, 30, TimeUnit.MINUTES);
                     JSONObject userInfoJsonObject = JSON.parseObject(userInfo.toString());
                     ServerHttpRequest.Builder builder = exchange.getRequest().mutate().headers(httpHeaders -> {
                         httpHeaders.set("userId", userInfoJsonObject.getString("id"));
-                        httpHeaders.set("realName", URLEncoder.encode(userInfoJsonObject.getString("realName"), StandardCharsets.UTF_8));
+                        httpHeaders.set("username", URLEncoder.encode(username, StandardCharsets.UTF_8));
+                        httpHeaders.set("realName",
+                                URLEncoder.encode(userInfoJsonObject.getString("realName"), StandardCharsets.UTF_8));
                     });
                     return chain.filter(exchange.mutate().request(builder.build()).build());
                 }
@@ -86,6 +95,8 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
     }
 
     private boolean isPathInWhiteList(String requestPath, String requestMethod, List<String> whitePathList) {
-        return (!CollectionUtils.isEmpty(whitePathList) && whitePathList.stream().anyMatch(requestPath::startsWith)) || (Objects.equals(requestPath, "/api/short-link/admin/v1/user") && Objects.equals(requestMethod, "POST"));
+        return (!CollectionUtils.isEmpty(whitePathList) && whitePathList.stream().anyMatch(requestPath::startsWith))
+                || (Objects.equals(requestPath, "/api/short-link/admin/v1/user")
+                        && Objects.equals(requestMethod, "POST"));
     }
 }

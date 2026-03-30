@@ -370,3 +370,27 @@ i {
     color: #8591a9;
   }
 }
+
+@media (max-width: 768px) {
+  body {
+    font-size: 13px;
+  }
+
+  .el-dialog {
+    width: 94vw !important;
+    margin: 6vh auto !important;
+  }
+
+  .el-dialog__body {
+    padding: 16px !important;
+  }
+
+  .el-pagination {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .el-table__body-wrapper {
+    overflow-x: auto;
+  }
+}

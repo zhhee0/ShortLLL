@@ -22,9 +22,12 @@ import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * openFeign 微服务调用传递用户信息配置
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @Configuration
 public class OpenFeignConfiguration {
@@ -32,9 +35,11 @@ public class OpenFeignConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return template -> {
-            template.header("username", UserContext.getUsername());
+            String username = UserContext.getUsername();
+            String realName = UserContext.getRealName();
+            template.header("username", username != null ? URLEncoder.encode(username, StandardCharsets.UTF_8) : null);
             template.header("userId", UserContext.getUserId());
-            template.header("realName", UserContext.getRealName());
+            template.header("realName", realName != null ? URLEncoder.encode(realName, StandardCharsets.UTF_8) : null);
         };
     }
 }

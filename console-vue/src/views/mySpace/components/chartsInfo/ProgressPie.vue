@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { watch, ref } from 'vue'
+import { computed } from 'vue'
 const props = defineProps({
   labels: {
     type: Array,
@@ -33,33 +33,25 @@ const props = defineProps({
     default: [10, 0]
   }
 })
-const data1 = props.data[0]
-const data2 = props.data[1]
+const getValue = (value) => {
+  const num = Number(value)
+  const isFiniteNumber = typeof Number.isFinite === 'function' ? Number.isFinite(num) : isFinite(num)
+  return isFiniteNumber ? num : 0
+}
 
-const data1Precentage = ref(0)
-const data2Precentage = ref(0)
-watch(
-  () => props.data,
-  () => {
-    const data1 = props.data[0]
-    const data2 = props.data[1]
-    // 分别计算不同的百分比
-    data1Precentage.value = (function () {
-      if (data1 === 0) {
-        return 0
-      } else {
-        return ((data1 / (data1 + data2)) * 100).toFixed(0)
-      }
-    })()
-    data2Precentage.value = (function () {
-      if (data2 === 0) {
-        return 0
-      } else {
-        return ((data2 / (data1 + data2)) * 100).toFixed(0)
-      }
-    })()
-  }
-)
+const data1Precentage = computed(() => {
+  const data1 = getValue(props.data?.[0])
+  const data2 = getValue(props.data?.[1])
+  const total = data1 + data2
+  return total === 0 ? 0 : Math.round((data1 / total) * 100)
+})
+
+const data2Precentage = computed(() => {
+  const data1 = getValue(props.data?.[0])
+  const data2 = getValue(props.data?.[1])
+  const total = data1 + data2
+  return total === 0 ? 0 : Math.round((data2 / total) * 100)
+})
 </script>
 
 <style lang="scss" scoped>

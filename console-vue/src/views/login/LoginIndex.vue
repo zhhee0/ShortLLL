@@ -1,110 +1,128 @@
 <template>
-  <div class="login-page">
-    <h1 class="title">SaaS 短 链 接 平 台(马丁)</h1>
-    <div class="login-box">
-      <!-- 登录 -->
-      <div class="logon" :class="{ hidden: !isLogin }">
-        <h2>用户登录</h2>
-        <el-form ref="loginFormRef1" :model="loginForm" label-width="50px" :rules="loginFormRule">
-          <div class="form-container1">
-            <el-form-item prop="phone">
-              <el-input v-model="loginForm.username" placeholder="请输入用户名" maxlength="11" show-word-limit clearable>
-                <template v-slot:prepend> 用户名 </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="password">
-              <el-input v-model="loginForm.password" type="password" clearable placeholder="请输入密码" show-password
-                style="margin-top: 20px">
-                <template v-slot:prepend> 密<span class="second-font">码</span> </template>
-              </el-input>
-            </el-form-item>
-          </div>
-          <div class="btn-gourp">
-            <div>
-              <el-checkbox class="remeber-password" v-model="checked"
-                style="color: #a0a0a0; margin: 0 0 0px 0">记住密码</el-checkbox>
-            </div>
-            <div>
-              <el-button :loading="loading" @keyup.enter="login" type="primary" plain
-                @click="login(loginFormRef1)">登录</el-button>
-            </div>
-          </div>
-        </el-form>
-      </div>
-      <!-- 注册 -->
-      <div class="register" :class="{ hidden: isLogin }">
-        <h2>用户注册</h2>
-        <el-form ref="loginFormRef2" :model="addForm" label-width="50px" class="form-container" width="width"
-          :rules="addFormRule">
-          <el-form-item prop="username">
-            <el-input v-model="addForm.username" placeholder="请输入用户名" maxlength="11" show-word-limit clearable>
-              <template v-slot:prepend> 用户名 </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item prop="mail">
-            <el-input v-model="addForm.mail" placeholder="请输入邮箱" show-word-limit clearable>
-              <template v-slot:prepend> 邮<span class="second-font">箱</span> </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item prop="phone">
-            <el-input v-model="addForm.phone" placeholder="请输入手机号" show-word-limit clearable>
-              <template v-slot:prepend> 手机号 </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item prop="realName">
-            <el-input v-model="addForm.realName" placeholder="请输入姓名" show-word-limit clearable>
-              <template v-slot:prepend> 姓<span class="second-font">名</span> </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item prop="password">
-            <el-input v-model="addForm.password" type="password" clearable placeholder="请输入密码" show-password>
-              <template v-slot:prepend> 密<span class="second-font">码</span> </template>
-            </el-input>
-          </el-form-item>
-          <!-- 验证码 -->
-          <!-- <el-form-item prop="vertify_code">
-            <el-input
-              v-model="loginForm.vertify_code"
-              placeholder="验证码"
-              prefix-icon="el-icon-key"
-              clearable
-            >
-              <template v-slot:append>
-                <div class="login-code" @click="refreshCode" title="看不清？点击切换">
-                  <vertify-code :identifyCode="loginIdentifyCode"></vertify-code>
-                </div>
-              </template>
-            </el-input>
-          </el-form-item> -->
-          <div class="btn-gourp">
-            <div></div>
-            <div>
-              <el-button :loading="loading" @keyup.enter="login" type="primary" plain
-                @click="addUser(loginFormRef2)">注册</el-button>
-            </div>
-          </div>
-        </el-form>
-      </div>
-      <!-- 左右移动的切换按钮 -->
-      <div class="move" ref="moveRef">
-        <span style="font-size: 18px; margin-bottom: 25px; color: rgb(225, 238, 250)">{{
-          !isLogin ? '已有账号？' : '还没有账号？'
-        }}</span>
-        <span style="font-size: 16px; color: rgb(225, 238, 250)">{{
-          !isLogin ? '欢迎登录账号！' : '欢迎注册账号！'
-        }}</span>
-        <el-button style="width: 100px; margin-top: 30px" @click="changeLogin">{{
-          !isLogin ? '去登录' : '去注册'
-        }}</el-button>
-      </div>
-    </div>
+  <div class="login-page" :class="{ 'is-register': !isLogin }">
+    <div class="bg-aurora"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-beam"></div>
     <div ref="vantaRef" class="vanta"></div>
+    <header class="login-header">
+      <div class="brand">
+        <div class="brand-mark">SL</div>
+        <div class="brand-copy">
+          <span class="brand-name">ShortLink Studio</span>
+          <span class="brand-sub">SaaS 短链增长工作台</span>
+        </div>
+      </div>
+      <div class="header-author">作者：张恒 <span class="tag">哈尔滨工程大学</span></div>
+      <div class="header-actions">
+      </div>
+    </header>
+    <main class="login-shell">
+      <section class="hero-panel">
+        <div class="hero-badge">可观测 · 可增长 · 可扩展</div>
+        <h1>把每一次点击，变成可复盘的增长线索</h1>
+        <p>
+          用户可以注册，也可以用默认账号登录，多租户数据隔离
+        </p>
+        <div class="hero-metrics">
+          <div class="metric-card">
+            <div class="metric-value">高并发</div>
+            <div class="metric-label">峰值流量稳定承载</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">高可用</div>
+            <div class="metric-label">核心链路持续可用</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">流量削峰</div>
+            <div class="metric-label">平滑突发流量波动</div>
+          </div>
+        </div>
+        <div class="hero-footnote">
+          轻量化部署，支持私有化和多租户，适合营销、运营、产品和增长团队协作。
+        </div>
+      </section>
+      <section class="auth-panel">
+        <div class="auth-card">
+          <div class="auth-switch">
+            <button type="button" :class="{ active: isLogin }" @click="changeLogin(true)">登录</button>
+            <button type="button" :class="{ active: !isLogin }" @click="changeLogin(false)">注册</button>
+          </div>
+          <div class="auth-title">
+            <h2>{{ isLogin ? '欢迎回来' : '开始创建账号' }}</h2>
+            <p>{{ isLogin ? '使用账户进入短链控制台。' : '填写信息，建立你的工作空间。' }}</p>
+          </div>
+          <div class="auth-body">
+            <el-form
+              v-show="isLogin"
+              ref="loginFormRef1"
+              :model="loginForm"
+              :rules="loginFormRule"
+              label-position="top"
+              class="auth-form"
+            >
+              <el-form-item prop="phone" label="用户名">
+                <el-input v-model="loginForm.username" placeholder="请输入用户名" maxlength="11" show-word-limit clearable />
+              </el-form-item>
+              <el-form-item prop="password" label="密码">
+                <el-input v-model="loginForm.password" type="password" clearable placeholder="请输入密码" show-password />
+              </el-form-item>
+              <div class="form-row">
+                <el-checkbox class="remeber-password" v-model="checked">记住密码</el-checkbox>
+                <span class="helper-text">建议仅在个人设备上勾选</span>
+              </div>
+              <el-button
+                :loading="loading"
+                @keyup.enter="login"
+                type="primary"
+                class="primary-btn"
+                @click="login(loginFormRef1)"
+              >
+                进入控制台
+              </el-button>
+              <el-button class="view-accounts-btn" text @click="showAccounts">查看当前已存在的账号</el-button>
+            </el-form>
+            <el-form
+              v-show="!isLogin"
+              ref="loginFormRef2"
+              :model="addForm"
+              :rules="addFormRule"
+              label-position="top"
+              class="auth-form"
+            >
+              <el-form-item prop="username" label="用户名">
+                <el-input v-model="addForm.username" placeholder="请输入用户名" maxlength="11" show-word-limit clearable />
+              </el-form-item>
+              <el-form-item prop="mail" label="邮箱">
+                <el-input v-model="addForm.mail" placeholder="请输入邮箱" show-word-limit clearable />
+              </el-form-item>
+              <el-form-item prop="phone" label="手机号">
+                <el-input v-model="addForm.phone" placeholder="请输入手机号" show-word-limit clearable />
+              </el-form-item>
+              <el-form-item prop="realName" label="姓名">
+                <el-input v-model="addForm.realName" placeholder="请输入姓名" show-word-limit clearable />
+              </el-form-item>
+              <el-form-item prop="password" label="密码">
+                <el-input v-model="addForm.password" type="password" clearable placeholder="请输入密码" show-password />
+              </el-form-item>
+              <el-button
+                :loading="loading"
+                @keyup.enter="login"
+                type="primary"
+                class="primary-btn"
+                @click="addUser(loginFormRef2)"
+              >
+                创建账号
+              </el-button>
+              <div class="register-note">演示环境可能限制注册权限。</div>
+            </el-form>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
   <el-dialog v-model="isWC" title="人机验证" width="40%" :before-close="handleClose">
     <div class="verification-flex">
-      <span>扫码下方二维码，关注后回复：<strong><span style="color:blue;">link</span></strong>，获取拿个offer-SaaS短链接系统人机验证码</span>
+      <span>扫码下方二维码，关注后回复：<strong><span style="color:blue;">link</span></strong>人机验证码</span>
       <img class="img" src="@/assets/png/公众号二维码.png" alt="">
       <el-form class="form" :model="verification" :rules="verificationRule" ref="verificationRef">
         <el-form-item prop="code" label="验证码">
@@ -121,7 +139,23 @@
       </span>
     </template>
   </el-dialog>
-  <!-- </template> -->
+  <el-dialog v-model="accountsDialogVisible" title="已存在的账号" width="400px">
+    <div v-if="accountsLoading" style="text-align: center; padding: 20px;">加载中...</div>
+    <div v-else-if="accountsList.length === 0" style="text-align: center; padding: 20px; color: #999;">暂无账号</div>
+    <div v-else class="accounts-list">
+      <div
+        v-for="name in accountsList"
+        :key="name"
+        class="account-item"
+        @click="fillUsername(name)"
+      >
+        {{ name }}
+      </div>
+    </div>
+    <template #footer>
+      <el-button @click="accountsDialogVisible = false">关闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -129,16 +163,14 @@ import { setToken, setUsername, getUsername } from '@/core/auth.js'
 import { ref, reactive, onMounted, onBeforeUnmount, watch, getCurrentInstance } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import * as THREE from 'three'
-import WAVES from 'vanta/src/vanta.waves'
 const { proxy } = getCurrentInstance()
 const API = proxy.$API
 const loginFormRef1 = ref()
 const loginFormRef2 = ref()
 const router = useRouter()
 const loginForm = reactive({
-  username: 'admin',
-  password: 'admin123456',
+  username: 'heng123',
+  password: '12345678',
 })
 const addForm = reactive({
   username: '',
@@ -198,12 +230,10 @@ const addUser = (formEl) => {
         } else {
           const res3 = await API.user.login({ username: addForm.username, password: addForm.password })
           const token = res3?.data?.data?.token
-          // 将username和token保存到cookies中和localStorage中
+          // 将username和token保存到cookies中
           if (token) {
             setToken(token)
             setUsername(addForm.username)
-            localStorage.setItem('token', token)
-            localStorage.setItem('username', addForm.username)
           }
           ElMessage.success('注册登录成功！')
           router.push('/home')
@@ -235,12 +265,10 @@ const verificationLogin = (formEl) => {
       const res1 = await API.user.login(loginForm)
       if (res1.data.code === '0') {
         const token = res1?.data?.data?.token
-        // 将username和token保存到cookies中和localStorage中
+        // 将username和token保存到cookies中
         if (token) {
           setToken(token)
           setUsername(loginForm.username)
-          localStorage.setItem('token', token)
-          localStorage.setItem('username', loginForm.username)
         }
         ElMessage.success('登录成功！')
         router.push('/home')
@@ -274,12 +302,10 @@ const login = (formEl) => {
       const res1 = await API.user.login(loginForm)
       if (res1.data.code === '0') {
         const token = res1?.data?.data?.token
-        // 将username和token保存到cookies中和localStorage中
+        // 将username和token保存到cookies中
         if (token) {
           setToken(token)
           setUsername(loginForm.username)
-          localStorage.setItem('token', token)
-          localStorage.setItem('username', loginForm.username)
         }
         ElMessage.success('登录成功！')
         router.push('/home')
@@ -309,204 +335,438 @@ const checked = ref(true)
 const vantaRef = ref()
 // 动态背景
 let vantaEffect = null
-onMounted(() => {
-  vantaEffect = WAVES({
+let vantaCancelled = false
+const shouldEnableVanta = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return false
+  }
+  return window.innerWidth > 768
+}
+const initVanta = async () => {
+  if (!vantaRef.value || !shouldEnableVanta()) {
+    return
+  }
+  const [{ default: NET }, THREE] = await Promise.all([
+    import('vanta/src/vanta.net'),
+    import('three')
+  ])
+  if (vantaCancelled || !vantaRef.value) {
+    return
+  }
+  vantaEffect = NET({
     el: vantaRef.value,
-    THREE: THREE,
+    THREE,
     mouseControls: true,
     touchControls: true,
     gyroControls: false,
     minHeight: 200.0,
     minWidth: 200.0,
     scale: 1.0,
-    scaleMobile: 1.0
+    scaleMobile: 1.0,
+    color: 0x38f6ff,
+    backgroundAlpha: 0.0,
+    points: 14.0,
+    maxDistance: 22.0,
+    spacing: 18.0
   })
-})
-onBeforeUnmount(() => {
-  if (vantaEffect) {
-    vantaEffect.destroy()
+}
+onMounted(() => {
+  const startVanta = () => {
+    initVanta().catch(() => {})
+  }
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(startVanta, { timeout: 1200 })
+  } else {
+    setTimeout(startVanta, 300)
   }
 })
+onBeforeUnmount(() => {
+  vantaCancelled = true
+  if (vantaEffect) {
+    vantaEffect.destroy()
+    vantaEffect = null
+  }
+})
+// 查看已存在的账号
+const accountsDialogVisible = ref(false)
+const accountsList = ref([])
+const accountsLoading = ref(false)
+const showAccounts = async () => {
+  accountsDialogVisible.value = true
+  accountsLoading.value = true
+  try {
+    const res = await API.user.listUsernames()
+    accountsList.value = res?.data?.data || []
+  } catch (e) {
+    accountsList.value = []
+  } finally {
+    accountsLoading.value = false
+  }
+}
+const fillUsername = (name) => {
+  loginForm.username = name
+  accountsDialogVisible.value = false
+  isLogin.value = true
+}
 // 展示登录还是展示注册
 const isLogin = ref(true)
-const moveRef = ref() // 左右移动的切换按钮模块
-const changeLogin = () => {
+const changeLogin = (targetLogin) => {
   let domain = window.location.host
-  if (domain === 'shortlink.magestack.cn' || domain === 'shortlink.nageoffer.com') {
-    ElMessage.warning('演示环境暂不支持注册')
+  if (typeof targetLogin === 'boolean') {
+    isLogin.value = targetLogin
     return
   }
   isLogin.value = !isLogin.value
-  if (isLogin.value) {
-    moveRef.value.style.transform = 'translate(0, 0)'
-  } else {
-    moveRef.value.style.transform = 'translate(-420px, 0)'
-  }
 }
 </script>
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+</style>
+
 <style lang="less" scoped>
-.login-box {
-  border: 2px solid #0984e3;
-  overflow: hidden;
-  display: flex;
-  justify-content: space-between;
-  border-radius: 20px;
-  padding: 0 40px 0 40px;
-  width: 700px;
-  // background-color: #eee;
-  position: absolute;
-  z-index: 999;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-sizing: border-box;
-  // border: 1px solid #eee;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
-  animation: hideIndex 0.5s;
-
-  h2 {
-    font-size: 30px;
-    font-family:
-      PingFangSC-Semibold,
-      PingFang SC;
-    font-weight: 600;
-    color: #3a3f63;
-    width: 100%;
-    text-align: center;
-    padding: 20px;
-  }
-
-  .el-form-item {
-    margin-bottom: 23px;
-  }
-
-  .btn-gourp {
-    margin-top: 30px;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-
-    .el-button {
-      width: 100px;
-    }
-
-    .remeber-password {
-      left: 0;
-      line-height: 0.5rem;
-    }
-  }
-
-  .el-checkbox {
-    width: 100%;
-    text-align: center;
-    margin-top: 1rem;
-  }
-}
-
-/deep/ .el-form-item__content {
-  margin-left: 0 !important;
-}
-
-@keyframes hideIndex {
-
-  // <!--具体细节自己可以调整-->
-  0% {
-    opacity: 0;
-    transform: translate(7.3125rem, -50%);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
 
 .login-page {
+  --ink: #e9f6ff;
+  --ink-soft: #8aa3bd;
+  --accent: #38f6ff;
+  --accent-strong: #20c7ff;
+  --sea: #1de0c6;
+  --sea-soft: #7ff7e1;
+  --card: rgba(7, 14, 28, 0.78);
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 15% 20%, #1b2a4f 0%, #0b1226 45%, #070a14 100%);
+  padding: 32px 48px 48px;
+  box-sizing: border-box;
+}
+
+.bg-aurora {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 70%;
+  background: radial-gradient(circle at 20% 30%, rgba(56, 246, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 80% 20%, rgba(49, 140, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 40% 80%, rgba(29, 224, 198, 0.35), transparent 60%);
+  filter: blur(24px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(56, 246, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 246, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  z-index: 2;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.bg-beam {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(56, 246, 255, 0.22) 50%, transparent 80%);
+  mix-blend-mode: screen;
+  animation: sweep 12s linear infinite;
+  z-index: 3;
+  pointer-events: none;
 }
 
 .vanta {
   position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 0;
+  opacity: 0.85;
 }
 
-.logon {
+.login-header {
+  position: relative;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
 }
 
-.hidden {
-  animation: hidden 1s;
-  animation-fill-mode: forwards; // 保持最后的状态
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-@keyframes hidden {
-
-  // <!--具体细节自己可以调整-->
-  0% {
-    opacity: 1;
-  }
-
-  70% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 0;
-  }
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0b1020, #16325a);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 0 18px rgba(56, 246, 255, 0.4);
 }
 
-.move {
-  position: absolute;
-  right: 0;
-  height: 100%;
+.brand-copy {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  width: 40%;
-  transition-duration: 0.5s;
+  gap: 2px;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.brand-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.status-pill {
+  padding: 6px 14px;
+  background: rgba(56, 246, 255, 0.14);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.login-shell {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+  gap: 36px;
+  height: calc(100vh - 140px);
   align-items: center;
-  background: #06beb6;
-  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #0984e3, #0984e3);
-  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right,
-      #1a8fd5,
-      #0984e3);
-  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
-.title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 15%;
-  z-index: 999;
-  font-size: 40px;
-  color: #fff;
-  font-weight: bolder;
+.hero-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+  animation: rise 0.8s ease;
 }
 
-:deep(.el-input__suffix-inner) {
-  width: 60px;
+.hero-badge {
+  align-self: flex-start;
+  background: rgba(56, 246, 255, 0.18);
+  color: #e9f6ff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-.form-container1 {
-  transform: translateY(-80%);
+.hero-panel h1 {
+  font-size: 42px;
+  line-height: 1.1;
+  margin: 0;
 }
 
-.second-font {
-  margin-left: 13px;
+.hero-panel p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  background: rgba(7, 14, 28, 0.65);
+  border: 1px solid rgba(56, 246, 255, 0.2);
+  padding: 16px;
+  border-radius: 18px;
+  box-shadow: 0 16px 30px rgba(5, 10, 22, 0.6), 0 0 16px rgba(56, 246, 255, 0.15);
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.metric-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.hero-footnote {
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: rgba(10, 18, 34, 0.7);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 246, 255, 0.18);
+}
+
+.auth-panel {
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn 0.9s ease;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 30px 60px rgba(3, 6, 14, 0.6), inset 0 0 0 1px rgba(56, 246, 255, 0.18);
+  border: 1px solid rgba(56, 246, 255, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.auth-switch {
+  display: inline-flex;
+  padding: 4px;
+  background: rgba(11, 20, 38, 0.7);
+  border-radius: 999px;
+  gap: 4px;
+}
+
+.auth-switch button {
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.auth-switch button.active {
+  background: linear-gradient(135deg, rgba(56, 246, 255, 0.85), rgba(32, 199, 255, 0.85));
+  color: #0b1226;
+  box-shadow: 0 8px 18px rgba(56, 246, 255, 0.35);
+}
+
+.auth-title {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.auth-title h2 {
+  font-size: 26px;
+  margin: 0 0 6px 0;
+}
+
+.auth-title p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.helper-text {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.primary-btn {
+  width: 100%;
+  margin-top: 8px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border: none;
+  box-shadow: 0 14px 24px rgba(32, 199, 255, 0.35);
+}
+
+.register-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.view-accounts-btn {
+  width: 100%;
+  margin-top: 6px;
+  color: var(--accent) !important;
+  font-size: 13px;
+}
+
+.view-accounts-btn:hover {
+  text-decoration: underline;
+}
+
+.accounts-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.account-item {
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.account-item:hover {
+  background: rgba(56, 246, 255, 0.1);
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 12px;
+  padding: 6px 12px;
+  box-shadow: none;
+  border: 1px solid rgba(56, 246, 255, 0.2);
+  background: rgba(6, 14, 28, 0.8);
+}
+
+:deep(.el-input__inner) {
+  font-family: inherit;
+  color: var(--ink);
+}
+
+:deep(.el-input__inner::placeholder) {
+  color: rgba(154, 179, 199, 0.8);
+}
+
+:deep(.el-checkbox__label) {
+  color: var(--ink-soft);
+}
+
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border: none;
 }
 
 .verification-flex {
@@ -518,9 +778,112 @@ const changeLogin = () => {
     margin-top: 10px;
     align-self: center;
   }
+
   .form {
     transform: translateY(15px);
     width: 90%;
   }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-40%) translateY(0);
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translateX(40%) translateY(-10%);
+    opacity: 0.2;
+  }
+}
+
+@media (max-width: 980px) {
+  .login-page {
+    padding: 24px;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .login-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .hero-panel {
+    max-width: 100%;
+  }
+
+  .hero-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-panel {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .hero-panel h1 {
+    font-size: 32px;
+  }
+}
+
+.header-author {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background: rgba(56, 246, 255, 0.1);
+  border: 1px solid rgba(56, 246, 255, 0.3);
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  letter-spacing: 1px;
+}
+
+.header-author .tag {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 6px;
 }
 </style>

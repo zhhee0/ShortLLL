@@ -1,7 +1,7 @@
 import axios from 'axios'
-import {getToken, getUsername} from '@/core/auth.js'
-import {isNotEmpty} from '@/utils/plugins.js'
-import router from "@/router";
+import { getToken, getUsername, removeKey, removeUsername } from '@/core/auth.js'
+import { isNotEmpty } from '@/utils/plugins.js'
+import router from "@/router"
 import { ElMessage } from 'element-plus'
 
 // const router = useRouter()
@@ -16,7 +16,7 @@ const http = axios.create({
 http.interceptors.request.use(
     (config) => {
         config.headers.Token = isNotEmpty(getToken()) ? getToken() : ''
-        config.headers.Username = isNotEmpty(getUsername()) ? getUsername() : ''
+        config.headers.Username = isNotEmpty(getUsername()) ? encodeURIComponent(getUsername()) : ''
         return config
     },
     (error) => {
@@ -38,6 +38,9 @@ http.interceptors.response.use(
         // 此处返回的数据是axios.catch(err)中接收的数据
         if (err.response.status === 401) {
             localStorage.removeItem('token')
+            localStorage.removeItem('username')
+            removeKey()
+            removeUsername()
             router.push('/login')
         }
         return Promise.reject(err)

@@ -25,9 +25,11 @@ import com.nageoffer.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.nageoffer.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.nageoffer.shortlink.admin.dto.resp.UserRespDTO;
 
+import java.util.List;
+
 /**
  * 用户接口层
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 public interface UserService extends IService<UserDO> {
 
@@ -85,4 +87,11 @@ public interface UserService extends IService<UserDO> {
      * @param token    用户登录 Token
      */
     void logout(String username, String token);
+
+    /**
+     * 查询所有已存在的用户名
+     *
+     * @return 用户名列表
+     */
+    List<String> listUsernames();
 }

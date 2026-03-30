@@ -5,7 +5,20 @@ import App from './App.vue'
 import router from './router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import {
+  ArrowLeft,
+  CaretBottom,
+  Delete,
+  HelpFilled,
+  Histogram,
+  Iphone,
+  Link,
+  Message,
+  Share,
+  Tickets,
+  Tools,
+  User
+} from '@element-plus/icons-vue'
 import './style.scss'
 import API from '@/api/index'
 import store from './store'
@@ -22,8 +35,22 @@ app.use(router)
 app.use(ElementPlus)
 app.use(store)
 // app.use(ViewUIPlus)
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
+const iconComponents = [
+  ArrowLeft,
+  CaretBottom,
+  Delete,
+  HelpFilled,
+  Histogram,
+  Iphone,
+  Link,
+  Message,
+  Share,
+  Tickets,
+  Tools,
+  User
+]
+iconComponents.forEach((icon) => {
+  app.component(icon.name, icon)
+})
 
 app.mount('#app')

@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; height: 100%; width: 100%">
+  <div class="mine-page">
     <div class="options-box">
       <div>
         <span>账号设置</span>
@@ -58,7 +58,7 @@
           <span>{{ userInfo?.data?.data?.mail }}</span>
         </el-descriptions-item>
       </el-descriptions>
-      <el-button style="position: absolute;left: 35px; top: 250px; " type="primary" @click="dialogVisible = !dialogVisible">修改个人信息</el-button>
+      <el-button class="edit-button" type="primary" @click="dialogVisible = !dialogVisible">修改个人信息</el-button>
     </div>
   </div>
   <!-- 修改信息 -->
@@ -83,15 +83,23 @@
             <template v-slot:prepend> 用户名 </template>
           </el-input>
         </el-form-item>
+        <div v-if="isSharedAccount" class="public-account-tip">公用账号不能修改信息</div>
         <el-form-item prop="mail">
-          <el-input v-model="userInfoForm.mail" placeholder="请输入邮箱" show-word-limit clearable>
+          <el-input
+            v-model="userInfoForm.mail"
+            :disabled="isSharedAccount"
+            :placeholder="isSharedAccount ? '公用账号不能修改信息' : '请输入邮箱'"
+            show-word-limit
+            clearable
+          >
             <template v-slot:prepend> 邮<span class="second-font">箱</span> </template>
           </el-input>
         </el-form-item>
         <el-form-item prop="phone">
           <el-input
             v-model="userInfoForm.phone"
-            placeholder="请输入手机号"
+            :disabled="isSharedAccount"
+            :placeholder="isSharedAccount ? '公用账号不能修改信息' : '请输入手机号'"
             show-word-limit
             clearable
           >
@@ -101,7 +109,8 @@
         <el-form-item prop="realName">
           <el-input
             v-model="userInfoForm.realName"
-            placeholder="请输入姓名"
+            :disabled="isSharedAccount"
+            :placeholder="isSharedAccount ? '公用账号不能修改信息' : '请输入姓名'"
             show-word-limit
             clearable
           >
@@ -111,7 +120,8 @@
         <el-form-item prop="password">
           <el-input
             v-model="userInfoForm.password"
-            placeholder="默认密码，如需修改可输入新密码"
+            :disabled="isSharedAccount"
+            :placeholder="isSharedAccount ? '公用账号不能修改信息' : '不修改密码可留空'"
             show-word-limit
             clearable
           >
@@ -121,7 +131,7 @@
         <el-form-item>
           <div style="width: 100%; display: flex; justify-content: flex-end">
             <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="changeUserInfo(loginFormRef)"> 提交 </el-button>
+            <el-button type="primary" :disabled="isSharedAccount" @click="changeUserInfo(loginFormRef)"> 提交 </el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -130,7 +140,7 @@
 </template>
 
 <script setup>
-import { getCurrentInstance, ref, reactive } from 'vue'
+import { getCurrentInstance, ref, reactive, computed } from 'vue'
 import { getUsername } from '@/core/auth'
 import { cloneDeep } from 'lodash'
 import { ElMessage } from 'element-plus'
@@ -139,7 +149,8 @@ const { proxy } = getCurrentInstance()
 // eslint-disable-next-line no-unused-vars
 const API = proxy.$API
 const userInfo = ref()
-const userInfoForm = ref() // 修改信息
+const userInfoForm = ref()
+const isSharedAccount = computed(() => getUsername() === 'heng123')
 const getUserInfo = async () => {
   const username = getUsername()
   userInfo.value = await API.user.queryUserInfo(username)
@@ -178,6 +189,10 @@ const changeUserInfo = (formEl) => {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (valid) {
+      if (isSharedAccount.value) {
+        ElMessage.warning('公用账号不能修改信息')
+        return
+      }
       await API.user.editUser(userInfoForm.value).then((res) => {
         if (res?.data?.code !== '0') {
           ElMessage.error(res.data.message)
@@ -195,6 +210,12 @@ const changeUserInfo = (formEl) => {
 </script>
 
 <style lang="scss" scoped>
+.mine-page {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
 .main-box {
   position: relative;
   flex: 1;
@@ -217,6 +238,19 @@ const changeUserInfo = (formEl) => {
 
 :deep(.el-descriptions__label) {
   width: 200px !important;
+}
+
+.public-account-tip {
+  margin: -6px 0 12px 0;
+  padding-left: 6px;
+  font-size: 12px;
+  color: #d9534f;
+}
+
+.edit-button {
+  position: absolute;
+  left: 35px;
+  top: 250px;
 }
 
 .second-font {
@@ -247,5 +281,40 @@ const changeUserInfo = (formEl) => {
 }
 :deep(.el-descriptions__body) {
   width: 500px;
+}
+
+@media (max-width: 768px) {
+  .mine-page {
+    flex-direction: column;
+  }
+
+  .options-box {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .main-box {
+    height: auto;
+    min-height: calc(100vh - 50px);
+  }
+
+  .content-box {
+    padding: 16px;
+  }
+
+  :deep(.el-descriptions__body) {
+    width: 100%;
+  }
+
+  .public-account-tip {
+    padding-left: 0;
+  }
+
+  .edit-button {
+    position: static;
+    margin-top: 12px;
+    align-self: flex-start;
+  }
 }
 </style>

@@ -36,7 +36,7 @@ import static com.nageoffer.shortlink.project.common.constant.RedisKeyConstant.D
 
 /**
  * 延迟记录短链接统计组件
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @Deprecated
 @Slf4j
@@ -50,22 +50,28 @@ public class DelayShortLinkStatsConsumer implements InitializingBean {
 
     public void onMessage() {
         Executors.newSingleThreadExecutor(
-                        runnable -> {
-                            Thread thread = new Thread(runnable);
-                            thread.setName("delay_short-link_stats_consumer");
-                            thread.setDaemon(Boolean.TRUE);
-                            return thread;
-                        })
+                runnable -> {
+                    Thread thread = new Thread(runnable);
+                    thread.setName("delay_short-link_stats_consumer");
+                    thread.setDaemon(Boolean.TRUE);
+                    return thread;
+                })
                 .execute(() -> {
-                    RBlockingDeque<ShortLinkStatsRecordDTO> blockingDeque = redissonClient.getBlockingDeque(DELAY_QUEUE_STATS_KEY);
+                    RBlockingDeque<ShortLinkStatsRecordDTO> blockingDeque = redissonClient
+                            .getBlockingDeque(DELAY_QUEUE_STATS_KEY);
                     RDelayedQueue<ShortLinkStatsRecordDTO> delayedQueue = redissonClient.getDelayedQueue(blockingDeque);
-                    for (; ; ) {
+                    for (;;) {
                         try {
                             ShortLinkStatsRecordDTO statsRecord = delayedQueue.poll();
                             if (statsRecord != null) {
-                                if (messageQueueIdempotentHandler.isMessageBeingConsumed(statsRecord.getKeys())) {
+                                String messageId = statsRecord.getMessageId();
+                                // 向下兼容如果老数据没有messageId则回退使用keys
+                                if (cn.hutool.core.util.StrUtil.isBlank(messageId)) {
+                                    messageId = statsRecord.getKeys();
+                                }
+                                if (messageQueueIdempotentHandler.isMessageBeingConsumed(messageId)) {
                                     // 判断当前的这个消息流程是否执行完成
-                                    if (messageQueueIdempotentHandler.isAccomplish(statsRecord.getKeys())) {
+                                    if (messageQueueIdempotentHandler.isAccomplish(messageId)) {
                                         return;
                                     }
                                     throw new ServiceException("消息未完成流程，需要消息队列重试");
@@ -73,10 +79,10 @@ public class DelayShortLinkStatsConsumer implements InitializingBean {
                                 try {
                                     shortLinkService.shortLinkStats(statsRecord);
                                 } catch (Throwable ex) {
-                                    messageQueueIdempotentHandler.delMessageProcessed(statsRecord.getKeys());
+                                    messageQueueIdempotentHandler.delMessageProcessed(messageId);
                                     log.error("延迟记录短链接监控消费异常", ex);
                                 }
-                                messageQueueIdempotentHandler.setAccomplish(statsRecord.getKeys());
+                                messageQueueIdempotentHandler.setAccomplish(messageId);
                                 continue;
                             }
                             LockSupport.parkUntil(500);

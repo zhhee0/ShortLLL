@@ -16,6 +16,11 @@ spring:
     view:
       prefix: /templates/
       suffix: .html
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: ${RABBITMQ_PASSWORD:your_rabbitmq_password}
   cloud:
     nacos:
       discovery:
@@ -32,7 +37,7 @@ short-link:
     time-window: 1
     max-access-count: 20
   domain:
-    default: nurl.ink:8003
+    default: heng.beimxw.top
   demo-mode:
     enable: false
     blacklist:

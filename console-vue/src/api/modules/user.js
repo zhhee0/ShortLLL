@@ -45,5 +45,12 @@ export default {
       url: '/actual/user/' + data,
       method: 'get'
     })
+  },
+  // 查询所有已存在的用户名
+  listUsernames() {
+    return http({
+      url: '/user/list-usernames',
+      method: 'get'
+    })
   }
 }

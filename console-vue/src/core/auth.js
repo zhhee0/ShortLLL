@@ -10,11 +10,11 @@ export function getUsername() {
 }
 
 export function setToken(token) {
-  return Cookies.set(TokenKey, token)
+  return Cookies.set(TokenKey, token, { expires: 1 / 48 })
 }
 
 export function setUsername(username) {
-  return Cookies.set('username', username)
+  return Cookies.set('username', username, { expires: 1 / 48 })
 }
 
 export function removeKey() {

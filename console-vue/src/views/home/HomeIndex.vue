@@ -3,35 +3,38 @@
     <el-container>
       <el-header height="54px" style="padding: 0">
         <div class="header">
-          <div @click="toMySpace" class="logo">拿个offer-SaaS短链接@马丁</div>
-          <div style="display: flex; align-items: center">
+          <div @click="toMySpace" class="logo">短链平台</div>
+          <div class="header-note">
+            <div class="header-clock">🚀 网站已运行 {{ clockText }}</div>
+            <div class="header-author">作者：张恒 <span class="tag">哈尔滨工程大学</span></div>
+          </div>
+          <div class="header-actions">
             <a
               class="link-span"
               style="text-decoration: none"
               target="_blank"
-              href="https://nageoffer.com/shortlink/"
-              >官方文档</a
+              href="https://space.bilibili.com/546047204?spm_id_from=333.1007.0.0"
+              >🔥作者主页</a
             >
-            <a
+            <RouterLink
               class="link-span"
               style="text-decoration: none"
-              target="_blank"
-              href="https://nageoffer.com/planet/group/"
-              >加沟通群</a
+              to="/home/story"
+              >🔥故事会(娱乐)🔥</RouterLink
             >
             <a
                 class="link-span"
                 style="text-decoration: none"
                 target="_blank"
-                href="https://nageoffer.com/shortlink/video/"
-            >🔥视频教程</a
+                href="https://codetop.cc/home"
+            >🔥小学奥数</a
             >
             <a
                 class="link-span"
                 style="text-decoration: none"
                 target="_blank"
-                href="http://shortlink.nageoffer.com"
-            >演示环境</a
+                href="https://www.xiaolincoding.com/"
+            >🔥清朝八股文</a
             >
             <el-dropdown>
               <div class="block">
@@ -81,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted } from 'vue'
+import { ref, getCurrentInstance, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { removeKey, removeUsername, getToken, getUsername } from '@/core/auth.js'
 import { ElMessage } from 'element-plus'
@@ -90,6 +93,29 @@ const API = proxy.$API
 // 当当前路径和菜单不匹配时，菜单不会被选中
 const router = useRouter()
 const squareUrl = ref('https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png')
+const clockText = ref('')
+// Use a fixed site launch time so refreshes/user actions don't change uptime.
+const launchTime = ref(new Date(2025, 12, 20, 21, 25, 0).getTime())
+let clockTimer = null
+
+const formatDuration = (ms) => {
+  const safeMs = ms < 0 ? 0 : ms
+  const totalSeconds = Math.floor(safeMs / 1000)
+  const days = Math.floor(totalSeconds / 86400)
+  const hours = Math.floor((totalSeconds % 86400) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  return `${days}天${hours}时${minutes}分${seconds}秒`
+}
+
+const updateClock = () => {
+  if (!launchTime.value) {
+    return
+  }
+  const now = Date.now()
+  const runMs = now - launchTime.value
+  clockText.value = formatDuration(runMs)
+}
 const toMine = () => {
   router.push('/home' + '/account')
 }
@@ -117,6 +143,16 @@ onMounted(async () => {
   const res = await API.user.queryUserInfo(actualUsername)
   // firstName.value = res?.data?.data?.realName?.split('')[0]
   username.value = truncateText(actualUsername, 8)
+
+  updateClock()
+  clockTimer = setInterval(updateClock, 1000)
+})
+
+onUnmounted(() => {
+  if (clockTimer) {
+    clearInterval(clockTimer)
+    clockTimer = null
+  }
 })
 const extractColorByName = (name) => {
   var temp = []
@@ -134,6 +170,7 @@ const truncateText = (text, maxLength) => {
 </script>
 
 <style lang="scss" scoped>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 .el-container {
   height: 100vh;
 
@@ -152,8 +189,16 @@ const truncateText = (text, maxLength) => {
 }
 
 .header {
-  color: rgba(0,0,0,.85);
-  background-color: #252b30;
+  color: #e6f7ff;
+  background:
+    radial-gradient(120% 160% at 8% 0%, rgba(120, 220, 255, 0.3), transparent 62%),
+    radial-gradient(140% 160% at 100% 0%, rgba(80, 150, 255, 0.26), transparent 58%),
+    linear-gradient(92deg, rgba(10, 30, 55, 0.52) 0%, rgba(8, 60, 95, 0.34) 55%, rgba(10, 36, 60, 0.28) 100%);
+  background-color: rgba(8, 26, 45, 0.28);
+  border: 1px solid rgba(130, 210, 255, 0.26);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  box-shadow: 0 12px 30px rgba(2, 10, 20, 0.32);
   padding: 0 0 0 20px;
   height: 100%;
   display: flex;
@@ -166,6 +211,56 @@ const truncateText = (text, maxLength) => {
     align-items: center;
     border: 0px;
   }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-note {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: 'Helvetica Neue', Helvetica, STHeiTi, Arial, sans-serif;
+  padding: 0 16px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.3;
+}
+
+.header-clock {
+  font-family: 'Outfit', 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(180, 230, 255, 0.9);
+  letter-spacing: 0.03em;
+}
+
+.header-author {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.header-author .tag {
+  color: rgba(56, 246, 255, 0.85);
+  font-weight: 600;
+}
+
+.note-link {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.note-link:hover {
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .content-box {
@@ -218,6 +313,46 @@ const truncateText = (text, maxLength) => {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .el-header {
+    height: auto !important;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .header-note {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .link-span {
+    margin-right: 12px;
+    font-size: 12px;
+  }
+
+  .name-span {
+    margin-right: 12px;
+  }
+
+  .content-box {
+    height: auto;
+    min-height: calc(100vh - 54px);
+  }
 }
 
 .avatar {

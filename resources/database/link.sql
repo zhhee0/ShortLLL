@@ -1169,3 +1169,17 @@ CREATE TABLE `t_user_9`
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_unique_username` (`username`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1726852231086505986 DEFAULT CHARSET=utf8mb4;
+
+-- story like table
+CREATE TABLE `t_story_like` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `story_id` bigint(20) NOT NULL COMMENT 'Story ID',
+  `username` varchar(256) NOT NULL COMMENT 'Username',
+  `create_time` datetime DEFAULT NULL COMMENT 'Create time',
+  `update_time` datetime DEFAULT NULL COMMENT 'Update time',
+  `del_flag` tinyint(1) DEFAULT 0 COMMENT 'Delete flag 0:active 1:deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_story_user` (`story_id`, `username`),
+  KEY `idx_story_id` (`story_id`),
+  KEY `idx_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='story like';

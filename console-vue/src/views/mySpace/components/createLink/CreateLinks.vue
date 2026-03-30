@@ -78,7 +78,13 @@ const { proxy } = getCurrentInstance()
 const API = proxy.$API
 // url的校验规则
 const reg =
-  /^(https?:\/\/(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+\.)+(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+))(:\d+)?(\/.*)?(\?.*)?(#.*)?$/
+  /^(https?:\/\/)(([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)\.)+([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)(:\d+)?(\/.*)?(\?.*)?(#.*)?$/
+const splitLines = (value) => {
+  return (value || '')
+    .split(/\r|\r\n|\n/)
+    .map((item) => item.trim())
+    .filter((item) => item !== '')
+}
 // 自定义时间中选择几天
 const shortcuts = [
   {
@@ -155,7 +161,7 @@ const isLoading = ref(false)
 watch(
   () => formData.originUrls,
   (nV) => {
-    originUrlRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    originUrlRows.value = splitLines(nV).length
     // // 只有在描述内容为空时才会去查询链接对应的标题
     // if (!formData.describe) {
     //   // 外边包一层防抖
@@ -169,7 +175,7 @@ const describeRows = ref(0)
 watch(
   () => formData.describes,
   (nV) => {
-    describeRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    describeRows.value = splitLines(nV).length
   }
 )
 
@@ -202,12 +208,12 @@ watch(
 // 校验规则
 const formRule = reactive({
   originUrls: [
-    { required: true, message: '请输入链接', trigger: 'blur' },
+    { required: true, whitespace: true, message: '请输入链接', trigger: 'blur' },
     {
       validator: function (rule, value, callback) {
         // console.log('============', value, value.split('/n'))
         if (value) {
-          value.split(/\r|\r\n|\n/).forEach((item) => {
+          splitLines(value).forEach((item) => {
             if (!reg.test(item)) {
               callback(new Error('请输入 http:// 或 https:// 开头的链接或应用跳转链接'))
             }
@@ -229,7 +235,7 @@ const formRule = reactive({
     {
       validator: function (rule, value, callback) {
         if (value) {
-          value.split(/\r|\r\n|\n/).forEach((item) => {
+          splitLines(value).forEach((item) => {
             if (item === '' || !item) {
               callback(new Error('请不要输入空行'))
             }
@@ -269,7 +275,10 @@ const disabledDate = (time) => {
 
 // 将输入框中的含有\n的字符串变为数组
 const transferStrToArray = (str) => {
-  return str.split(/[\n]+/)
+  return (str || '')
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter((item) => item !== '')
 }
 // 将组件里面的确认和取消点击事件传出去
 const emits = defineEmits(['onSubmit', 'cancel'])
@@ -296,31 +305,40 @@ function downLoadXls(res) {
 const ruleFormRef = ref()
 const submitDisable = ref(false)
 const onSubmit = async (formEl) => {
+  if (submitDisable.value) {
+    return
+  }
   submitDisable.value = true
   if (!formEl) {
     submitDisable.value = false
     return
   }
-  await formEl.validate(async (valid, fields) => {
-    if (valid) {
+  await formEl.validate(async (valid) => {
+    if (!valid) {
+      submitDisable.value = false
+      return
+    }
+    let isOk = false
+    try {
       let { describes, originUrls } = formData
       describes = transferStrToArray(describes)
       originUrls = transferStrToArray(originUrls)
       const res = await API.smallLinkPage.addLinks({ ...formData, describes, originUrls })
       if (!res.data.data && res.data) {
         ElMessage.success('创建成功！短链列表已开始下载')
-        emits('onSubmit', false)
-        submitDisable.value = false
         downLoadXls(res)
+        isOk = true
       } else if (!res?.data?.success) {
         ElMessage.error(res?.data?.message)
       } else {
         ElMessage.success('创建成功！短链列表已开始下载')
-        emits('onSubmit', false)
-        submitDisable.value = false
+        isOk = true
       }
-    } else {
-      // ElMessage.error('创建失败！')
+    } finally {
+      if (isOk) {
+        emits('onSubmit', true)
+      }
+      submitDisable.value = false
     }
   })
 }

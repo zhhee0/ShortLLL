@@ -21,22 +21,34 @@ import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * 用户信息传输拦截器
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
+@Slf4j
 @Component
 public class UserTransmitInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler) throws Exception {
+    public boolean preHandle(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response,
+            @Nullable Object handler) throws Exception {
         String username = request.getHeader("username");
+        log.info("[UserTransmitInterceptor] raw username header: [{}]", username);
         if (StrUtil.isNotBlank(username)) {
+            username = URLDecoder.decode(username, StandardCharsets.UTF_8);
+            log.info("[UserTransmitInterceptor] decoded username: [{}]", username);
             String userId = request.getHeader("userId");
             String realName = request.getHeader("realName");
+            if (StrUtil.isNotBlank(realName)) {
+                realName = URLDecoder.decode(realName, StandardCharsets.UTF_8);
+            }
             UserInfoDTO userInfoDTO = new UserInfoDTO(userId, username, realName);
             UserContext.setUser(userInfoDTO);
         }
@@ -44,7 +56,8 @@ public class UserTransmitInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable Object handler, Exception exception) throws Exception {
+    public void afterCompletion(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response,
+            @Nullable Object handler, Exception exception) throws Exception {
         UserContext.removeUser();
     }
 }

@@ -32,9 +32,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 回收站管理控制层
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +50,15 @@ public class RecycleBinController {
     @PostMapping("/api/short-link/v1/recycle-bin/save")
     public Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam) {
         recycleBinService.saveRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 批量保存回收站
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/save/batch")
+    public Result<Void> saveRecycleBinBatch(@RequestBody List<RecycleBinSaveReqDTO> requestParams) {
+        recycleBinService.saveRecycleBinBatch(requestParams);
         return Results.success();
     }
 
@@ -69,11 +80,29 @@ public class RecycleBinController {
     }
 
     /**
+     * 批量恢复短链接
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/recover/batch")
+    public Result<Void> recoverRecycleBinBatch(@RequestBody List<RecycleBinRecoverReqDTO> requestParams) {
+        recycleBinService.recoverRecycleBinBatch(requestParams);
+        return Results.success();
+    }
+
+    /**
      * 移除短链接
      */
     @PostMapping("/api/short-link/v1/recycle-bin/remove")
     public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
         recycleBinService.removeRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 批量移除短链接
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/remove/batch")
+    public Result<Void> removeRecycleBinBatch(@RequestBody List<RecycleBinRemoveReqDTO> requestParams) {
+        recycleBinService.removeRecycleBinBatch(requestParams);
         return Results.success();
     }
 }

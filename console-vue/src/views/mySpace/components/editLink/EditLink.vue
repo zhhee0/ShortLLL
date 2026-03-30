@@ -50,7 +50,13 @@ const { proxy } = getCurrentInstance()
 const API = proxy.$API
 const editData = props.editData
 // url的校验规则
-const reg = /^(https?:\/\/(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+\.)+(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+))(:\d+)?(\/.*)?(\?.*)?(#.*)?$/;
+const reg = /^(https?:\/\/)(([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)\.)+([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)(:\d+)?(\/.*)?(\?.*)?(#.*)?$/;
+const splitLines = (value) => {
+  return (value || '')
+    .split(/\r|\r\n|\n/)
+    .map((item) => item.trim())
+    .filter((item) => item !== '')
+}
 // 自定义时间中选择几天
 const shortcuts = [
   {
@@ -118,19 +124,26 @@ const fd = (fn, delay) => {
 }
 const queryTitle = (url) => {
   if (reg.test(url)) {
-    API.smallLinkPage.queryTitle({ url: url }).then(res => {
-      formData.describe = res?.data?.data
-    })
+    API.smallLinkPage
+      .queryTitle({ url: url })
+      .then(res => {
+        const title = res?.data?.data
+        formData.describe = title || '未获取到标题'
+      })
+      .catch(() => {
+        formData.describe = '未获取到标题'
+      })
   }
 }
 const getTitle = fd(queryTitle, 1000)
 watch(
   () => formData.originUrl,
   nV => {
-    originUrlRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    const lines = splitLines(nV)
+    originUrlRows.value = lines.length
     // 只有在描述内容为空时才会去查询链接对应的标题
-    if (!formData.describe) {
-      getTitle(nV)
+    if (!formData.describe && lines.length === 1) {
+      getTitle(lines[0])
     }
   }
 )
@@ -140,7 +153,7 @@ const describeRows = ref(0)
 watch(
   () => formData.describe,
   nV => {
-    describeRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    describeRows.value = splitLines(nV).length
   }
 )
 
@@ -175,12 +188,12 @@ watch(
 // 校验规则
 const formRule = reactive({
   originUrl: [
-    { required: true, message: '请输入链接', trigger: 'blur' },
+    { required: true, whitespace: true, message: '请输入链接', trigger: 'blur' },
     {
       validator: function (rule, value, callback) {
         // console.log('============', value, value.split('/n'))
         if (value) {
-          value.split(/\r|\r\n|\n/).forEach(item => {
+          splitLines(value).forEach(item => {
             if (!reg.test(item)) {
               callback(new Error('请输入 http:// 或 https:// 开头的链接或应用跳转链接'))
             }

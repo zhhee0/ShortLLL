@@ -37,9 +37,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 用户管理控制层
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @RestController
 @RequiredArgsConstructor
@@ -112,5 +114,13 @@ public class UserController {
     public Result<Void> logout(@RequestParam("username") String username, @RequestParam("token") String token) {
         userService.logout(username, token);
         return Results.success();
+    }
+
+    /**
+     * 查询所有已存在的用户名
+     */
+    @GetMapping("/api/short-link/admin/v1/user/list-usernames")
+    public Result<List<String>> listUsernames() {
+        return Results.success(userService.listUsernames());
     }
 }

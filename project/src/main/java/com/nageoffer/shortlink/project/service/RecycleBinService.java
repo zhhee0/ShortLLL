@@ -26,9 +26,11 @@ import com.nageoffer.shortlink.project.dto.req.RecycleBinSaveReqDTO;
 import com.nageoffer.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
 import com.nageoffer.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 
+import java.util.List;
+
 /**
  * 回收站管理接口层
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 public interface RecycleBinService extends IService<ShortLinkDO> {
 
@@ -38,6 +40,13 @@ public interface RecycleBinService extends IService<ShortLinkDO> {
      * @param requestParam 请求参数
      */
     void saveRecycleBin(RecycleBinSaveReqDTO requestParam);
+
+    /**
+     * 批量保存回收站
+     *
+     * @param requestParams 请求参数列表
+     */
+    void saveRecycleBinBatch(List<RecycleBinSaveReqDTO> requestParams);
 
     /**
      * 分页查询短链接
@@ -55,9 +64,23 @@ public interface RecycleBinService extends IService<ShortLinkDO> {
     void recoverRecycleBin(RecycleBinRecoverReqDTO requestParam);
 
     /**
+     * 批量从回收站恢复短链接
+     *
+     * @param requestParams 请求参数列表
+     */
+    void recoverRecycleBinBatch(List<RecycleBinRecoverReqDTO> requestParams);
+
+    /**
      * 从回收站移除短链接
      *
      * @param requestParam 移除短链接请求参数
      */
     void removeRecycleBin(RecycleBinRemoveReqDTO requestParam);
+
+    /**
+     * 批量从回收站移除短链接
+     *
+     * @param requestParams 请求参数列表
+     */
+    void removeRecycleBinBatch(List<RecycleBinRemoveReqDTO> requestParams);
 }

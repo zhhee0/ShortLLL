@@ -61,6 +61,7 @@
             class="buttons"
             type="primary"
             :disabled="submitDisable"
+            :loading="submitLoading"
             @click="onSubmit(ruleFormRef)"
             >确认</el-button
           >
@@ -87,7 +88,13 @@ const { proxy } = getCurrentInstance()
 const API = proxy.$API
 // url的校验规则
 const reg =
-  /^(https?:\/\/(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+\.)+(([a-zA-Z0-9]+-?)+[a-zA-Z0-9]+))(:\d+)?(\/.*)?(\?.*)?(#.*)?$/
+  /^(https?:\/\/)(([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)\.)+([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)(:\d+)?(\/.*)?(\?.*)?(#.*)?$/
+const splitLines = (value) => {
+  return (value || '')
+    .split(/\r|\r\n|\n/)
+    .map((item) => item.trim())
+    .filter((item) => item !== '')
+}
 // 自定义时间中选择几天
 const shortcuts = [
   {
@@ -141,6 +148,8 @@ const initFormData = () => {
   formData.validDate = null
   formData.describe = null
   formData.validDateType = 0
+  submitDisable.value = false
+  submitLoading.value = false
 }
 const maxOriginUrlRows = ref(100) // 最多多少行
 // 链接有多少行
@@ -162,21 +171,30 @@ const isLoading = ref(false)
 const queryTitle = (url) => {
   if (reg.test(url)) {
     isLoading.value = true
-    API.smallLinkPage.queryTitle({ url: url }).then((res) => {
-      formData.describe = res?.data?.data
-      isLoading.value = false
-    })
+    API.smallLinkPage
+      .queryTitle({ url: url })
+      .then((res) => {
+        const title = res?.data?.data
+        formData.describe = title || '未获取到标题'
+      })
+      .catch(() => {
+        formData.describe = '未获取到标题'
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
   }
 }
 const getTitle = fd(queryTitle, 1000)
 watch(
   () => formData.originUrl,
   (nV) => {
-    originUrlRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    const lines = splitLines(nV)
+    originUrlRows.value = lines.length
     // 只有在描述内容为空时才会去查询链接对应的标题
-    if (!formData.describe) {
+    if (!formData.describe && lines.length === 1) {
       // 外边包一层防抖
-      getTitle(nV)
+      getTitle(lines[0])
     }
   }
 )
@@ -186,7 +204,7 @@ const describeRows = ref(0)
 watch(
   () => formData.describe,
   (nV) => {
-    describeRows.value = (nV || '').split(/\r|\r\n|\n/)?.length ?? 0
+    describeRows.value = splitLines(nV).length
   }
 )
 
@@ -223,12 +241,12 @@ watch(
 // 校验规则
 const formRule = reactive({
   originUrl: [
-    { required: true, message: '请输入链接', trigger: 'blur' },
+    { required: true, whitespace: true, message: '请输入链接', trigger: 'blur' },
     {
       validator: function (rule, value, callback) {
         // console.log('============', value, value.split('/n'))
         if (value) {
-          value.split(/\r|\r\n|\n/).forEach((item) => {
+          splitLines(value).forEach((item) => {
             if (!reg.test(item)) {
               callback(new Error('请输入 http:// 或 https:// 开头的链接或应用跳转链接'))
             }
@@ -286,33 +304,39 @@ const emits = defineEmits(['onSubmit', 'cancel'])
 // 点击确定按钮后的校验
 const ruleFormRef = ref()
 const submitDisable = ref(false)
+const submitLoading = ref(false)
 const onSubmit = async (formEl) => {
-  submitDisable.value = true
-  if (!formEl) {
-    submitDisable.value = false
+  if (submitDisable.value) {
     return
   }
-  await formEl.validate(async (valid, fields) => {
-    if (valid) {
-      const res = await API.smallLinkPage.addSmallLink(formData)
-      if (!res?.data?.success) {
-        if (res?.data?.code === 'A000001') {
-          ElMessage.warning({
-            message: res.data.message,
-            duration: 5000
-          })
-        } else {
-          ElMessage.error(res.data.message)
-        }
+  if (!formEl) {
+    return
+  }
+  submitDisable.value = true
+  submitLoading.value = true
+  try {
+    await formEl.validate()
+    const res = await API.smallLinkPage.addSmallLink(formData)
+    if (!res?.data?.success) {
+      if (res?.data?.code === 'A000001') {
+        ElMessage.warning({
+          message: res.data.message,
+          duration: 5000
+        })
       } else {
-        ElMessage.success('创建成功！')
-        emits('onSubmit', false)
-        submitDisable.value = false
+        ElMessage.error(res.data.message)
       }
-    } else {
-      ElMessage.error('创建失败！')
+      submitDisable.value = false
+      return
     }
-  })
+    ElMessage.success('创建成功！')
+    emits('onSubmit', true)
+  } catch (e) {
+    // 校验失败或网络错误
+    submitDisable.value = false
+  } finally {
+    submitLoading.value = false
+  }
 }
 const cancel = () => {
   emits('cancel', false)

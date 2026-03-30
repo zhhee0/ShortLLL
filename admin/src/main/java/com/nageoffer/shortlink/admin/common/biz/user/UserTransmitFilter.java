@@ -26,9 +26,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * 用户信息传输过滤器
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
 @RequiredArgsConstructor
 public class UserTransmitFilter implements Filter {
@@ -39,8 +42,12 @@ public class UserTransmitFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String username = httpServletRequest.getHeader("username");
         if (StrUtil.isNotBlank(username)) {
+            username = URLDecoder.decode(username, StandardCharsets.UTF_8);
             String userId = httpServletRequest.getHeader("userId");
             String realName = httpServletRequest.getHeader("realName");
+            if (StrUtil.isNotBlank(realName)) {
+                realName = URLDecoder.decode(realName, StandardCharsets.UTF_8);
+            }
             UserInfoDTO userInfoDTO = new UserInfoDTO(userId, username, realName);
             UserContext.setUser(userInfoDTO);
         }

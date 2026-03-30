@@ -46,6 +46,13 @@ export default {
       data
     })
   },
+  toRecycleBinBatch(data) {
+    return http({
+      url: '/recycle-bin/save/batch',
+      method: 'post',
+      data
+    })
+  },
   // 查询回收站数据
   queryRecycleBin(data) {
     return http({
@@ -62,10 +69,24 @@ export default {
       data
     })
   },
+  recoverLinkBatch(data) {
+    return http({
+      method: 'post',
+      url: '/recycle-bin/recover/batch',
+      data
+    })
+  },
   removeLink(data) {
     return http({
       method: 'post',
       url: '/recycle-bin/remove',
+      data
+    })
+  },
+  removeLinkBatch(data) {
+    return http({
+      method: 'post',
+      url: '/recycle-bin/remove/batch',
       data
     })
   },

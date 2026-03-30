@@ -18,7 +18,7 @@
 package com.nageoffer.shortlink.project.service.impl;
 
 import com.nageoffer.shortlink.project.service.UrlTitleService;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -28,23 +28,37 @@ import java.net.URL;
 
 /**
  * URL 标题接口实现层
- * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：link）获取项目资料
+ * 
  */
+@Slf4j
 @Service
 public class UrlTitleServiceImpl implements UrlTitleService {
 
-    @SneakyThrows
     @Override
     public String getTitleByUrl(String url) {
-        URL targetUrl = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) targetUrl.openConnection();
-        connection.setRequestMethod("GET");
-        connection.connect();
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            Document document = Jsoup.connect(url).get();
-            return document.title();
+        try {
+            URL targetUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) targetUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                Document document = Jsoup.connect(url)
+                        .timeout(5000)
+                        .userAgent(
+                                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                        .followRedirects(true)
+                        .get();
+                return document.title();
+            }
+        } catch (Exception e) {
+            log.warn("获取网站标题失败，url：{}，原因：{}", url, e.getMessage());
         }
-        return "Error while fetching title.";
+        return "未获取到标题";
     }
 }
