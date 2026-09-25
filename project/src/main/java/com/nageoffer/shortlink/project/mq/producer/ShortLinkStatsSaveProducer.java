@@ -18,29 +18,41 @@
 package com.nageoffer.shortlink.project.mq.producer;
 
 import com.alibaba.fastjson2.JSON;
+import com.nageoffer.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
-
-import static com.nageoffer.shortlink.project.config.RabbitMQConfiguration.STATS_EXCHANGE;
-import static com.nageoffer.shortlink.project.config.RabbitMQConfiguration.STATS_ROUTING_KEY;
 
 /**
  * 短链接监控状态保存消息队列生产者
  * 
  */
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class ShortLinkStatsSaveProducer {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    @Value("${short-link.kafka.stats-topic:short-link.stats}")
+    private String statsTopic;
 
     /**
-     * 发送延迟消费短链接统计
+     * 发送短链接统计消息
      */
-    public void send(Map<String, String> producerMap) {
-        rabbitTemplate.convertAndSend(STATS_EXCHANGE, STATS_ROUTING_KEY, JSON.toJSONString(producerMap));
+    public void send(ShortLinkStatsRecordDTO statsRecord) {
+        kafkaTemplate
+                .send(statsTopic, statsRecord.getFullShortUrl(), JSON.toJSONString(statsRecord))
+                .whenComplete((result, throwable) -> {
+                    if (throwable != null) {
+                        log.error(
+                                "发送短链接统计消息失败, messageId: {}, fullShortUrl: {}",
+                                statsRecord.getMessageId(),
+                                statsRecord.getFullShortUrl(),
+                                throwable);
+                    }
+                });
     }
 }

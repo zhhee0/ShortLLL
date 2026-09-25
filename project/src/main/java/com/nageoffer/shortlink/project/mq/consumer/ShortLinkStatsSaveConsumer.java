@@ -23,7 +23,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.nageoffer.shortlink.project.common.convention.exception.ServiceException;
@@ -53,8 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -89,15 +88,13 @@ public class ShortLinkStatsSaveConsumer {
         @Value("${short-link.stats.locale.amap-key}")
         private String statsLocaleAmapKey;
 
-        @RabbitListener(queues = "short-link.stats.queue")
+        @KafkaListener(
+                        topics = "${short-link.kafka.stats-topic:short-link.stats}",
+                        groupId = "${spring.kafka.consumer.group-id:short-link-stats-consumer}")
         public void onMessage(String message) {
                 String messageId = null;
                 try {
-                        Map<String, String> producerMap = JSON.parseObject(message,
-                                        new TypeReference<Map<String, String>>() {
-                                        });
-                        ShortLinkStatsRecordDTO statsRecord = JSON.parseObject(producerMap.get("statsRecord"),
-                                        ShortLinkStatsRecordDTO.class);
+                        ShortLinkStatsRecordDTO statsRecord = JSON.parseObject(message, ShortLinkStatsRecordDTO.class);
                         messageId = statsRecord.getMessageId();
                         if (StrUtil.isBlank(messageId)) {
                                 messageId = String.valueOf(message.hashCode());

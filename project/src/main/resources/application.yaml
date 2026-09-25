@@ -16,17 +16,38 @@ spring:
     view:
       prefix: /templates/
       suffix: .html
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: admin
-    password: ${PROJECT_RABBITMQ_PASSWORD:your_project_rabbitmq_password}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
+    producer:
+      acks: all
+      retries: 3
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: short-link-stats-consumer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: record
+      concurrency: ${KAFKA_CONSUMER_CONCURRENCY:3}
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
 
 short-link:
+  kafka:
+    stats-topic: short-link.stats
+    stats-dlt-topic: short-link.stats.DLT
+    partitions: 3
+    replicas: 1
+    retry:
+      interval: 1000
+      max-attempts: 3
   domain:
     default: heng.beimxw.top
   stats:
@@ -35,7 +56,7 @@ short-link:
   goto-domain:
     white-list:
       enable: true
-      names: '拿个offer,知乎,掘金,博客园'
+      names: 'offer,zhihu,juejin,cnblogs'
       details:
         - nageoffer.com
         - zhihu.com

@@ -503,10 +503,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     @Override
     public void shortLinkStats(ShortLinkStatsRecordDTO statsRecord) {
-        Map<String, String> producerMap = new HashMap<>();
-        producerMap.put("statsRecord", JSON.toJSONString(statsRecord));
-        // 消息队列为什么选用RocketMQ？详情查看：https://nageoffer.com/shortlink/question
-        shortLinkStatsSaveProducer.send(producerMap);
+        shortLinkStatsSaveProducer.send(statsRecord);
     }
 
     private String generateSuffix(ShortLinkCreateReqDTO requestParam) {
